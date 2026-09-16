@@ -1,0 +1,6 @@
+// Parameter: adjust ThresholdPerFiveMinutes for the approved POC volume.
+let ThresholdPerFiveMinutes = 100;
+ExternalMobileEvents_CL
+| where TimeGenerated >= ago(30m)
+| summarize IngestedEvents=count() by bin(TimeGenerated, 5m)
+| where IngestedEvents > ThresholdPerFiveMinutes

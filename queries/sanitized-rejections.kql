@@ -1,0 +1,7 @@
+// Parameters: replace <correlation-id> and adjust the time range.
+let TargetCorrelationId = "<correlation-id>";
+AppTraces
+| where TimeGenerated >= ago(2h)
+| where tostring(Properties["correlation.id"]) == TargetCorrelationId
+| where tostring(Properties["error.code"]) in ("sensitive_data_rejected", "validation_failed")
+| project TimeGenerated, OperationId, SeverityLevel, ErrorCode=tostring(Properties["error.code"])

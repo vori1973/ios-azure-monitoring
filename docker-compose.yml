@@ -1,0 +1,89 @@
+services:
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.136.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./config/otel-collector.local.yaml:/etc/otelcol/config.yaml:ro
+      - ./.local-data:/data
+    ports:
+      - "127.0.0.1:4318:4318"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "/otelcol-contrib",
+          "validate",
+          "--config=/etc/otelcol/config.yaml",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [telemetry]
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      POC_MODE: local
+      BACKEND_HOST: 0.0.0.0
+      BACKEND_PORT: 3001
+      GATEWAY_URL: http://gateway:3000
+      BACKEND_URL: http://backend:3001
+      LOCAL_AUTH_TOKEN: ${LOCAL_AUTH_TOKEN:-local-demo-token-value}
+      LOCAL_INGESTION_PATH: /data/business-events.ndjson
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
+      OTEL_SERVICE_NAME: governed-backend-local
+    volumes:
+      - ./.local-data:/data
+    depends_on:
+      collector:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3001/health').then(r=>{if(!r.ok)process.exit(1)})",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [telemetry]
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    environment:
+      POC_MODE: local
+      GATEWAY_HOST: 0.0.0.0
+      GATEWAY_PORT: 3000
+      BACKEND_URL: http://backend:3001
+      GATEWAY_URL: http://gateway:3000
+      LOCAL_AUTH_TOKEN: ${LOCAL_AUTH_TOKEN:-local-demo-token-value}
+      LOCAL_INGESTION_PATH: /data/business-events.ndjson
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://collector:4318
+      OTEL_SERVICE_NAME: local-gateway
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000/health').then(r=>{if(!r.ok)process.exit(1)})",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [telemetry]
+
+networks:
+  telemetry:
+    internal: false

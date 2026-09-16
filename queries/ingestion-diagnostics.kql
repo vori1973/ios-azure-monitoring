@@ -1,0 +1,8 @@
+// Parameters: replace <correlation-id> and adjust the time range.
+let TargetCorrelationId = "<correlation-id>";
+AppTraces
+| where TimeGenerated >= ago(2h)
+| where tostring(Properties["correlation.id"]) == TargetCorrelationId
+| where tostring(Properties["error.code"]) startswith "ingestion_"
+    or tostring(Properties["error.code"]) == "azure_ingestion_rejected"
+| project TimeGenerated, OperationId, Message, ErrorCode=tostring(Properties["error.code"])

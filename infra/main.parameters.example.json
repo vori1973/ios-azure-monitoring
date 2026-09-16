@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": { "value": "<approved-region>" },
+    "namePrefix": { "value": "iosmonpoc" },
+    "logAnalyticsWorkspaceResourceId": {
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<workspace-rg>/providers/Microsoft.OperationalInsights/workspaces/<workspace-name>"
+    },
+    "apimServiceResourceId": {
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<apim-rg>/providers/Microsoft.ApiManagement/service/<apim-name>"
+    },
+    "managedEnvironmentResourceId": {
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<container-apps-rg>/providers/Microsoft.App/managedEnvironments/<environment-name>"
+    },
+    "managedEnvironmentPrivateDnsZoneResourceId": {
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<network-rg>/providers/Microsoft.Network/privateDnsZones/<container-apps-default-domain>"
+    },
+    "managedEnvironmentStaticIp": {
+      "value": "<internal-environment-static-ip>"
+    },
+    "containerRegistryResourceId": {
+      "value": "/subscriptions/<subscription-id>/resourceGroups/<registry-rg>/providers/Microsoft.ContainerRegistry/registries/<registry-name>"
+    },
+    "backendImage": {
+      "value": "<registry>/<repository>/backend:<immutable-tag>"
+    },
+    "collectorImage": {
+      "value": "<registry>/<repository>/collector:<immutable-tag>"
+    },
+    "apimBackendTrustValue": { "value": "<provide-securely-at-deployment>" },
+    "otlpClientToken": { "value": "<provide-securely-at-deployment>" },
+    "clientOpenIdConfigUrl": {
+      "value": "https://login.microsoftonline.com/<tenant-id>/v2.0/.well-known/openid-configuration"
+    },
+    "clientAudience": { "value": "api://<external-mobile-client-api-id>" },
+    "deployDataCollectionEndpoint": { "value": true }
+  }
+}
