@@ -1,9 +1,18 @@
 schema: spec-driven
 
 context: |
-  TEMPLATE: Replace this context when creating a project.
-  Document the product domain, users, architecture, technology stack,
-  repository commands, compatibility requirements, and deployment constraints.
+  This repository implements a portable external-mobile telemetry proof of
+  concept. A TypeScript simulator sends operational telemetry through a
+  controlled OpenTelemetry Collector and governed business events through an
+  APIM-compatible gateway and backend to Azure Monitor Logs Ingestion.
+  The supported development runtime is Node.js 22 through 25. Local execution
+  uses Docker Compose and an explicit file ingestion adapter. Azure deployment
+  uses Bicep and existing approved APIM and Log Analytics resources.
+  Run npm ci, npm run build, npm run lint, npm test, npm run scan:secrets, and
+  npm run infra:validate for implementation validation.
+  Never embed Azure credentials in the simulator, silently fall back from Azure
+  to local ingestion, permit arbitrary business-event properties, or delete
+  shared APIM and Log Analytics resources.
   GitHub issues capture problems and ownership. OpenSpec specifications are the
   source of truth for accepted behavior. Pull requests must link both the issue
   and the OpenSpec change.

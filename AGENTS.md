@@ -1,19 +1,27 @@
 # Repository Instructions
 
-## Required project customization
+## Project context
 
-Replace this section when creating a project from the template:
-
-- **Purpose:** Describe the product and its users.
-- **Architecture:** List the major components and dependency boundaries.
-- **Technology:** List languages, frameworks, SDKs, and supported versions.
-- **Commands:** Document setup, build, lint, test, and run commands.
-- **Constraints:** Record security, compatibility, performance, and deployment
-  requirements.
-- **Ownership:** Identify sensitive areas or paths requiring specialist review.
-
-Do not begin implementation until the commands and constraints relevant to the
-requested change are known.
+- **Purpose:** A proof of concept for architects and mobile/backend engineers to
+  validate Azure Monitor telemetry from an external client that behaves like an
+  iOS application.
+- **Architecture:** A portable client simulator emits operational telemetry to a
+  controlled OpenTelemetry Collector and sends business events through an API
+  gateway to a governed backend. Only the backend can call Azure Monitor Logs
+  Ingestion. Operational and business telemetry use separate Azure paths.
+- **Technology:** Node.js 22 or newer (through 25), TypeScript, Fastify,
+  OpenTelemetry, Azure Monitor Ingestion SDK, Docker Compose, Bicep, APIM,
+  Application Insights, and Log Analytics.
+- **Commands:** `npm ci`, `npm run build`, `npm run lint`, `npm test`,
+  `npm run test:coverage`, `npm run local:up`, `npm run local:down`, and
+  `npm run infra:validate`.
+- **Constraints:** Never put Azure credentials in the simulator. Keep event
+  schemas closed, reject sensitive data, preserve W3C trace context, use an
+  explicit runtime mode, and never silently fall back from Azure ingestion to
+  local files. Shared APIM and Log Analytics resources must not be deleted.
+- **Ownership:** Changes under `infra/`, `config/apim/`, telemetry sanitization,
+  authentication, identity/RBAC, and event schemas require cloud security or
+  platform review before production use.
 
 ## Source of truth
 
@@ -60,4 +68,3 @@ non-behavioral maintenance may proceed without a new OpenSpec change.
 - Handle failures explicitly; do not hide errors behind success-shaped defaults.
 - Keep credentials, tokens, personal data, and environment-specific values out
   of source control.
-
