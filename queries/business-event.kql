@@ -1,0 +1,7 @@
+// Parameters: replace <correlation-id> and adjust the time range.
+let TargetCorrelationId = "<correlation-id>";
+ExternalMobileEvents_CL
+| where TimeGenerated >= ago(2h)
+| where CorrelationId == TargetCorrelationId
+| project TimeGenerated, EventType, SchemaVersion, EventId, CorrelationId,
+    ApplicationVersion, Outcome, DurationMs, IngestionSource

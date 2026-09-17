@@ -1,0 +1,7 @@
+// Parameters: replace <correlation-id> and adjust the time range.
+let TargetCorrelationId = "<correlation-id>";
+AppDependencies
+| where TimeGenerated >= ago(2h)
+| where tostring(Properties["correlation.id"]) == TargetCorrelationId
+| where Success == false
+| project TimeGenerated, OperationId, Name, Target, DurationMs, ResultCode

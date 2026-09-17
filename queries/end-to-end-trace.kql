@@ -1,0 +1,9 @@
+// Parameters: replace <correlation-id> and adjust the time range.
+let TargetCorrelationId = "<correlation-id>";
+let StartTime = ago(2h);
+union isfuzzy=true AppRequests, AppDependencies, AppTraces, AppExceptions
+| where TimeGenerated >= StartTime
+| extend CorrelationId = tostring(Properties["correlation.id"])
+| where CorrelationId == TargetCorrelationId
+| project TimeGenerated, Type, OperationId, Name, Success, ResultCode, CorrelationId
+| order by TimeGenerated asc

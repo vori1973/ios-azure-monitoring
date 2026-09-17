@@ -1,0 +1,53 @@
+<policies>
+  <inbound>
+    <base />
+    <rate-limit-by-key calls="30" renewal-period="60"
+      counter-key="@(context.Subscription?.Id ?? context.Request.IpAddress)" />
+    <check-header name="Content-Type" failed-check-httpcode="415"
+      failed-check-error-message="Content-Type must be application/json or protobuf."
+      ignore-case="true">
+      <value>application/json</value>
+      <value>application/x-protobuf</value>
+    </check-header>
+    <set-header name="traceparent" exists-action="skip">
+      <value>@($"00-{Guid.NewGuid():N}-{Guid.NewGuid():N}".Substring(0,55)+"-01")</value>
+    </set-header>
+    <choose>
+      <when condition="@(context.Request.Url.Path.EndsWith(&quot;/v1/traces&quot;))">
+        <check-header name="x-otlp-token" failed-check-httpcode="401"
+          failed-check-error-message="Invalid OTLP client identity">
+          <value>{{external-mobile-otlp-token}}</value>
+        </check-header>
+        <set-backend-service base-url="{{COLLECTOR_URL}}" />
+      </when>
+      <otherwise>
+        <validate-jwt header-name="Authorization" failed-validation-httpcode="401"
+          failed-validation-error-message="Invalid client identity">
+          <openid-config url="{{CLIENT_OPENID_CONFIG_URL}}" />
+          <audiences>
+            <audience>{{CLIENT_AUDIENCE}}</audience>
+          </audiences>
+        </validate-jwt>
+        <set-header name="x-apim-authenticated" exists-action="override">
+          <value>{{BACKEND_TRUST_VALUE}}</value>
+        </set-header>
+        <set-header name="x-client-id" exists-action="override">
+          <value>@(context.Request.Headers.GetValueOrDefault("Authorization", "").AsJwt()?.Claims.GetValueOrDefault("azp", "unknown") ?? "unknown")</value>
+        </set-header>
+        <set-backend-service base-url="{{BACKEND_URL}}" />
+      </otherwise>
+    </choose>
+  </inbound>
+  <backend>
+    <forward-request timeout="30" />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <trace source="external-mobile-telemetry-poc" severity="error">
+      <message>@($"APIM error reason={context.LastError?.Reason} path={context.Request.Url.Path}")</message>
+    </trace>
+    <base />
+  </on-error>
+</policies>

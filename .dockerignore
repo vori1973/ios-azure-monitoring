@@ -1,0 +1,16 @@
+.git
+.github
+.local-data
+.vscode
+coverage
+docs
+infra
+monitoring
+node_modules
+openspec
+queries
+scripts
+tests
+.env
+.env.*
+*.tgz

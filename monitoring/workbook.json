@@ -1,0 +1,36 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# External Mobile Telemetry POC\nOperational telemetry and governed business events are intentionally separated."
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "union isfuzzy=true AppRequests, AppDependencies, AppExceptions | where TimeGenerated >= ago(2h) | summarize Count=count() by Type, bin(TimeGenerated, 5m)",
+        "size": 0,
+        "title": "Operational telemetry",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components",
+        "visualization": "timechart"
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "ExternalMobileEvents_CL | where TimeGenerated >= ago(2h) | summarize Count=count() by EventType, Outcome",
+        "size": 0,
+        "title": "Governed business events",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "table"
+      }
+    }
+  ],
+  "fallbackResourceIds": []
+}
